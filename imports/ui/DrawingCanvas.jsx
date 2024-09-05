@@ -15,7 +15,7 @@ const DrawingCanvas = ({ setGraphic, setHanzi, setPinyin, setEnglish, isAnimatin
     const winHeight = 400;
     const winWidth = 400;
     const [doubleTapHandler, setDoubleTapHandler] = useState(null);
-    const [gameArray, setGameArray] = useState([]);
+    var [gameArray, setGameArray] = useState([]);
 
     useEffect(() => {
         if (canvasRef.current && !isAnimating) {
@@ -26,6 +26,7 @@ const DrawingCanvas = ({ setGraphic, setHanzi, setPinyin, setEnglish, isAnimatin
 
     useEffect(() => {
         const fetchData = async () => {
+            gameArray = [];
             try {
                 const dictionary = parseHTML();
                 const graphics = await parseGraphics();
@@ -43,7 +44,7 @@ const DrawingCanvas = ({ setGraphic, setHanzi, setPinyin, setEnglish, isAnimatin
                         setBackground(graphicsData);
                         setGraphic(graphicsData);
                         setChar(character);
-                        gameArray.push(character);
+                        gameArray.push({character: character, graphicsData: graphicsData});
                     }
                 }
             } catch (error) {

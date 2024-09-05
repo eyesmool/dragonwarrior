@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import DrawingCanvas from './DrawingCanvas.jsx';
 import HanziWriter from 'hanzi-writer';
+import { Controller } from './Controller.jsx';
 
 export const App = () => {
   const [graphic, setGraphic] = useState('');
@@ -8,33 +9,44 @@ export const App = () => {
   const [pinyin, setPinyin] = useState('');
   const [english, setEnglish] = useState('');
   const [isAnimating, setIsAnimating] = useState(false);
+  const [gameState, setGameState] = useState('start');
 
   const handleButtonClick = () => {
     setIsAnimating(!isAnimating);
   };
+  const returnV1 = () => {
+    return (
+      <div>
+        <div>
+          <h1>{isAnimating ? 'Animation' : 'Draw'}</h1>
+        </div>
+        <hr></hr>
+        <div>
+          <h1>{hanzi}</h1>
+          <h2>{pinyin}</h2>
+          <h3>{english}</h3>
+          <button onClick={handleButtonClick}>
+            {isAnimating ? 'Draw' : 'Animate'}
+          </button>
+        </div>
+        <hr></hr>
+          <DrawingCanvas
+            setGraphic={setGraphic}
+            setHanzi={setHanzi}
+            setPinyin={setPinyin}
+            setEnglish={setEnglish}
+            isAnimating={isAnimating}
+          />
+        </div>
+    );
+  }
 
   return (
-    <div>
-      <div>
-        <h1>{isAnimating ? 'Animation' : 'Draw'}</h1>
-      </div>
-      <hr></hr>
-      <div>
-        <h1>{hanzi}</h1>
-        <h2>{pinyin}</h2>
-        <h3>{english}</h3>
-        <button onClick={handleButtonClick}>
-          {isAnimating ? 'Draw' : 'Animate'}
-        </button>
-      </div>
-      <hr></hr>
-        <DrawingCanvas
-          setGraphic={setGraphic}
-          setHanzi={setHanzi}
-          setPinyin={setPinyin}
-          setEnglish={setEnglish}
-          isAnimating={isAnimating}
-        />
-      </div>
-  );
+    <div> 
+      <Controller
+      gameState={gameState}
+      setGameState={setGameState}/>
+    </div>
+  )
+  
 };
