@@ -5,36 +5,73 @@ import { fetchQuizInfo } from './Characters';
 export const Controller = ({ gameState, setGameState }) => {
     const winHeight = 400;
     const winWidth = 400;
-    const [quizInfo, setQuizInfo] = useState(null); // Use state to store quizInfo
+    const [quizInfo, setQuizInfo] = useState(null);
+    const [currentChar, setCurrentChar] = useState(null);
+    const [quizState, setQuizState] = useState('');
+    const [charsDone, setCharsDone] = useState([]);
+    const [nextQuestion, setNextQuestion] = useState(false);
 
     useEffect(() => {
         const loadQuizInfo = async () => {
-            if (gameState === 'start') { // Use === for comparison
-                const quizData = await fetchQuizInfo(); // Await the async function
-                setQuizInfo(quizData); // Update the state with fetched data
+            if (gameState === 'start') {
+                console.log('fetching quiz info');
+                const quizData = await fetchQuizInfo();
+                console.log(quizData);
+                setQuizInfo(quizData);
+                setCurrentChar(quizData.chars.shift());
             }
         };
-
-        loadQuizInfo(); // Call the function to fetch data
-        // we can set the game state to the update from quiz to update here
-        console.log(gameState);
-    }, [gameState]);
+        if (quizState === 'charDone') {
+            const next = quizInfo.chars.shift();
+            if (next === undefined) {
+                setGameState('start');
+                setCharsDone([])
+                setNextQuestion(true)
+                setQuizState('start');
+            } else {
+                setCurrentChar(next);
+                setQuizState('start');
+            }
+        }
+        loadQuizInfo();
+    }, [quizState, gameState]);
 
     useEffect(() => {
         if (quizInfo) {
+            console.log("Quiz Info was updated!");
             console.log(quizInfo);
-            console.log(quizInfo.chars)
         }
     }, [quizInfo]);
 
+    useEffect(() => {
+        setGameState('start')
+        setNextQuestion('false')
+        setCharsDone([])
+    }, [nextQuestion]);
     return (
         quizInfo ? (
-            <Quiz
-                char={quizInfo.chars.pop()}
-                height={winHeight}
-                width={winWidth}
-                setGameState={setGameState}
-            />
+            <div>
+                <Quiz
+                    char={currentChar}
+                    height={winHeight}
+                    width={winWidth}
+                    setQuizState={setQuizState}
+                    setGameState={setGameState}
+                    setCharsDone={setCharsDone}
+                    nextQuestion={nextQuestion}
+                    setNextQuestion={setNextQuestion}
+                />
+                <h1>
+                    {quizInfo.hanzi}
+                    {quizInfo.pinyin}
+                    {quizInfo.english}
+                </h1>
+                <hr></hr>
+                <h1>
+                    {charsDone}
+                </h1>
+                <button onClick={() => setNextQuestion((true))}>Next Question</button>
+            </div>
         ) : (
             <div>Loading...</div> // Render loading state while quizInfo is being fetched
         )

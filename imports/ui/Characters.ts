@@ -25,7 +25,6 @@ const fetchQuizInfo = async () => {
             if (graphics) {
                 const graphicsData = graphics.get(character);
                 if (character && graphicsData) {
-                    console.log(character)
                     quizInfo.chars.push(character)
                 }
             }
