@@ -1,19 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Quiz } from './Quiz';
 import { fetchQuizInfo } from './Characters';
+import { motion } from "framer-motion";
 
-export const Controller = ({ gameState, setGameState }) => {
+
+export const Controller = () => {
     const winHeight = 400;
     const winWidth = 400;
     const [quizInfo, setQuizInfo] = useState(null);
+    const [gameState, setGameState] = useState('start');
     const [currentChar, setCurrentChar] = useState(null);
-    const [quizState, setQuizState] = useState('');
+    const [quizState, setQuizState] = useState('start');
     const [charsDone, setCharsDone] = useState([]);
-    const [nextQuestion, setNextQuestion] = useState(false);
+    const [newQuestion, setNewQuestion] = useState(false);
+    const [writer, setWriter] = useState(null);
+
 
     useEffect(() => {
         const loadQuizInfo = async () => {
-            if (gameState === 'start') {
+            if (gameState === 'start' && quizState === 'start') {
                 console.log('fetching quiz info');
                 const quizData = await fetchQuizInfo();
                 console.log(quizData);
@@ -21,17 +26,9 @@ export const Controller = ({ gameState, setGameState }) => {
                 setCurrentChar(quizData.chars.shift());
             }
         };
-        if (quizState === 'charDone') {
-            const next = quizInfo.chars.shift();
-            if (next === undefined) {
-                setGameState('start');
-                setCharsDone([])
-                setNextQuestion(true)
-                setQuizState('start');
-            } else {
-                setCurrentChar(next);
-                setQuizState('start');
-            }
+
+        if (quizState === 'charDone' && quizInfo.chars.length > 0) {
+            setGameState('AwaitingNextChar');
         }
         loadQuizInfo();
     }, [quizState, gameState]);
@@ -45,24 +42,33 @@ export const Controller = ({ gameState, setGameState }) => {
 
     useEffect(() => {
         setGameState('start')
-        setNextQuestion('false')
+        setNewQuestion('false')
         setCharsDone([])
-    }, [nextQuestion]);
+    }, [newQuestion]);
+
+
     return (
         quizInfo ? (
             <div>
+                <h1>Instructions</h1>
+                Tap for hint<br></br>
+                Double tap to hide/show answer<br></br>
                 <Quiz
                     char={currentChar}
                     height={winHeight}
                     width={winWidth}
+                    quizState={quizState}
                     setQuizState={setQuizState}
                     setGameState={setGameState}
                     setCharsDone={setCharsDone}
-                    nextQuestion={nextQuestion}
-                    setNextQuestion={setNextQuestion}
+                    newQuestion={newQuestion}
+                    setNewQuestion={setNewQuestion}
+                    currentChar={currentChar}
+                    setWriter={setWriter}
+                    quizInfo={quizInfo}
                 />
                 <h1>
-                    {quizInfo.hanzi}
+                    {/* {quizInfo.hanzi} */}
                     {quizInfo.pinyin}
                     {quizInfo.english}
                 </h1>
@@ -70,7 +76,18 @@ export const Controller = ({ gameState, setGameState }) => {
                 <h1>
                     {charsDone}
                 </h1>
-                <button onClick={() => setNextQuestion((true))}>Next Question</button>
+                {gameState === 'end' && (
+                    <button onClick={() => setNewQuestion((true))}>New Question</button>
+                )}
+                {gameState === 'AwaitingNextChar' && (
+                    <button onClick={() => {
+                        writer.hideCharacter();
+                        writer.hideOutline();
+                        writer.cancelQuiz();
+                        setCurrentChar(quizInfo.chars.shift());
+                        setQuizState('start');
+                    }}>Next Char</button>
+                )}
             </div>
         ) : (
             <div>Loading...</div> // Render loading state while quizInfo is being fetched

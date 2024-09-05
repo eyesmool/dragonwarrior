@@ -9,7 +9,6 @@ export const App = () => {
   const [pinyin, setPinyin] = useState('');
   const [english, setEnglish] = useState('');
   const [isAnimating, setIsAnimating] = useState(false);
-  const [gameState, setGameState] = useState('start');
 
   const handleButtonClick = () => {
     setIsAnimating(!isAnimating);
@@ -43,9 +42,7 @@ export const App = () => {
 
   return (
     <div> 
-      <Controller
-      gameState={gameState}
-      setGameState={setGameState}/>
+      <Controller/>
     </div>
   )
   
